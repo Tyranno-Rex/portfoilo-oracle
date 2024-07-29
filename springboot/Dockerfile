@@ -13,6 +13,8 @@ COPY settings.gradle settings.gradle
 # 4. Ensure Gradle wrapper has execute permissions
 RUN chmod +x gradlew
 
+RUN microdnf install findutils
+
 # 5. Copy the source code to the working directory
 COPY src src
 

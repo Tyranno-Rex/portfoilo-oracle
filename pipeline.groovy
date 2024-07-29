@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Clean Workspace') {
             steps {
-                sh 'rm -rf *'
+                sh 'sudo rm -rf *'
             }
         }
 
@@ -101,7 +101,7 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                sh 'docker run -d --name springboot-container --network docker-network -p 8080:8080 springboot-image'
+                sh 'docker run -d --name springboot-container -v /home/application.yml:/app/src/main/resources/application.yml --network docker-network -p 8080:8080 springboot-image'
                 // sh 'docker run -d --name fastapi-container --network docker-network -p 8000:8000 fastapi-image'
             }
         }
