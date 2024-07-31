@@ -5,3 +5,7 @@ starlette
 pandas
 openai==0.28.1
 numpy
+matplotlib
+plotly
+scipy
+scikit-learn
