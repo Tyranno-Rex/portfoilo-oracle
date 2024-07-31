@@ -97,8 +97,8 @@ class FASTAPI_SERVER:
         print("FastAPI Server Setting")
         # FastAPI 라우터 설정
         self.router = APIRouter()
-        self.router.add_api_route('/openai', endpoint=self.check_server, methods=['GET'])
-        self.router.add_api_route('/openai/api/send_question', endpoint=self.send_AnswerByQuestion, methods=['POST'])
+        self.router.add_api_route('/openai/', endpoint=self.check_server, methods=['GET'])
+        self.router.add_api_route('/openai/api/send_question/', endpoint=self.send_AnswerByQuestion, methods=['POST'])
         self.app.include_router(self.router)
         print("FastAPI Server Setting Complete")
         print("=====================================")
