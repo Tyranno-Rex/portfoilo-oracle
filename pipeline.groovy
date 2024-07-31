@@ -102,7 +102,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 // sh 'docker run -d --name springboot-container -v /home/application.yml:/app/src/main/resources/application.yml --network docker-network -p 8080:8080 springboot-image'
-                sh 'docker run -d --name fastapi-container -v /home/mongo-token.txt:/app/mongo-token.txt -v /home/openai-token.txt:/app/openai-token.txt -v /home/processed_texts_embeddings.csv:/app/data/processed_texts_embeddings.csv --network docker-network -p 8000:8000 fastapi-image'
+                sh 'docker run -d --name fastapi-container -v /home/mongo-token.txt:/app/mongo-token.txt -v /home/openai-token.txt:/app/openai-token.txt -v /home/processed_texts_embeddings.csv:/app/data/processed_texts_embeddings.csv -v /home/openai-question-key.txt:/app/openai-question-key.txt --network docker-network -p 8000:8000 fastapi-image'
             }
         }
     }

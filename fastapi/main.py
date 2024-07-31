@@ -20,6 +20,7 @@ class FASTAPI_SERVER:
     def __init__(self):
         self.OWNER_NAME = "Tyranno-Rex"
         self.openai_key = ""
+        self.question_key = ""
         # FastAPI 서버 설정
         self.app = FastAPI()
         self.app.router.redirect_slashes = False
@@ -69,11 +70,15 @@ class FASTAPI_SERVER:
             print("OpenAI Setting")
             if self.current_os == 'Windows':
                 PASSWORD = open("C:/Users/admin/project/portfoilo-oracle/fastapi/database/password-openai-token.txt", "r").read().strip()
+                QUESTION_KEY = open("C:/Users/admin/project/portfoilo-oracle/fastapi/database/password-openai-question-key.txt", "r").read().strip()
             else:
                 PASSWORD = open("/app/openai-token.txt", "r").read().strip()
+                QUESTION_KEY = open("/app/openai-question-key.txt", "r").read().strip()
             
             print("Password: ", PASSWORD)
+            print("Question Key: ", QUESTION_KEY)
             self.openai_key = PASSWORD
+            self.question_key = QUESTION_KEY
             print("OpenAI Setting Complete")
         except Exception as e:
             print("OpenAI Setting Error: ", e)
@@ -97,11 +102,16 @@ class FASTAPI_SERVER:
         print("FastAPI Server Setting")
         # FastAPI 라우터 설정
         self.router = APIRouter()
+        self.router.add_api_route('/local/', endpoint=self.check_local, methods=['POST'])
         self.router.add_api_route('/openai/', endpoint=self.check_server, methods=['GET'])
         self.router.add_api_route('/openai/api/send_question/', endpoint=self.send_AnswerByQuestion, methods=['POST'])
         self.app.include_router(self.router)
         print("FastAPI Server Setting Complete")
         print("=====================================")
+
+    async def check_local(self):
+        return JSONResponse(status_code=200, content={"message": "Local is running", "question": "What is the owner's name?", 
+                                                        "answer": "this letter is came from the owner of this project. The owner's name is " + self.OWNER_NAME + "."})
 
     async def check_server(self):
         return JSONResponse(status_code=200, content={"message": "Server is running"})
@@ -109,6 +119,9 @@ class FASTAPI_SERVER:
     async def send_AnswerByQuestion(self, request: Request):
         try:
             question = request.query_params.get('question')
+            question_key = request.query_params.get('question_key')
+            if (self.question_key != question_key):
+                return JSONResponse(status_code=401, content={"message": "Error", "data": "Invalid question key"})
             response = OGABQ.answer_question(self.df, question=question, openai_key=self.openai_key)
             self.question.insert_one({"question": question, "answer": response})
             return JSONResponse(status_code=200, content={"message": "Success", "question": question, "answer": response})
