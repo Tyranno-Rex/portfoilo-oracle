@@ -23,7 +23,7 @@ public class QuestionService {
         question.setDatetime(LocalDateTime.now().toString());
 
         try {
-            Optional<User> user = userRepository.findByUsername(principal.getName());
+            Optional<User> user = userRepository.findByName(principal.getName());
             question.setUser(user.get());
             questionRepository.save(question);
             return true;

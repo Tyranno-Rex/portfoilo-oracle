@@ -8,5 +8,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email); // 중복 가입 확인
 
-    Optional<User> findByUsername(String username); // 로그인을 위한 사용자 조회
+    Optional<User> findByName(String username); // 로그인을 위한 사용자 조회
 }

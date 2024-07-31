@@ -1,4 +1,7 @@
 password*
 api.json
+database/
+__pycache__/
+*.csv
 *.log
 repo-indivi-data

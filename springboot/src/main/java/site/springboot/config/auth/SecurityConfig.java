@@ -27,7 +27,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((authorizeRequest) -> authorizeRequest
                         .requestMatchers("/api/**").authenticated()
-                        .requestMatchers("/", "/test", "/css/**", "images/**", "/js/**", "/login/**", "/logout/**", "/posts/**", "/comments/**").permitAll()
+                        .requestMatchers("/", "/test", "/css/**", "images/**", "/js/**", "/login/**",
+                                "/logout/**", "/posts/**", "/comments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .logout( // 로그아웃 성공 시 / 주소로 이동
@@ -37,8 +38,10 @@ public class SecurityConfig {
                 .oauth2Login(
                         (oauth) ->
                                 oauth.userInfoEndpoint(
-                                        (endpoint) -> endpoint.userService(customOAuth2UserService)
-                                )
+                                        (endpoint) -> endpoint.userService(customOAuth2UserService))
+                                        .defaultSuccessUrl("/loginSuccess")
+
+
                 );
 
 

@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pymongo
+starlette
+pandas
+openai
+numpy

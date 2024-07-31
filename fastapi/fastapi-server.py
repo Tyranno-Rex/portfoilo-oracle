@@ -1,0 +1,123 @@
+# import library
+import uvicorn
+from fastapi import FastAPI, APIRouter, Request
+from fastapi.responses import JSONResponse
+from starlette.middleware.cors import CORSMiddleware
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
+import uvicorn.config
+import platform
+import pandas as pd
+from openai.embeddings_utils import distances_from_embeddings
+from ast import literal_eval
+import numpy as np
+
+# FastAPI 서버 클래스
+from module import openai_generate_AnswerByQusetion as OGABQ
+
+class FASTAPI_SERVER:
+    
+    def __init__(self):
+        self.OWNER_NAME = "Tyranno-Rex"
+        self.openai_key = ""
+        # FastAPI 서버 설정
+        self.app = FastAPI()
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+            # MongoDB 연결
+        # RELEASE: mongodb://root:1234@mongodb-container/
+        # DEBUG: localhost:27017
+
+        # 운영 체제를 확인하여 디버그 모드와 릴리즈 모드를 설정합니다.
+        self.current_os = platform.system()
+        print("Environment: ", self.current_os)
+        try :
+            print("=====================================")
+            print("MongoDB Connection")
+            if self.current_os == 'Windows':
+                PASSWORD = open("C:/Users/admin/project/portfolio-project/back-end/main/database/password-mongo-token.txt", "r").read().strip()
+            else:
+                PASSWORD = open("/app/mongo-token.txt", "r").read().strip()
+            
+            print("Password: ", PASSWORD)
+            self.client = MongoClient("mongodb+srv://jsilvercastle:" + PASSWORD + "@portfolio.tja9u0o.mongodb.net/?retryWrites=true&w=majority&appName=portfolio")
+            try:
+                self.client.admin.command('ismaster')
+            except ConnectionFailure:
+                print('MongoDB server not available')
+            # readme 데이터베이스
+            self.git_repo_mongodb = self.client['github_repo']
+
+            # portfolio 데이터베이스
+            self.portfoilo = self.client['portfolio']
+            self.question = self.portfoilo['question']
+            print("MongoDB Connection Complete")
+            print("=====================================")
+        except Exception as e:
+            print("MongoDB Connection Error: ", e)
+            print("=====================================")
+
+        try :
+            print("=====================================")
+            print("OpenAI Setting")
+            if self.current_os == 'Windows':
+                PASSWORD = open("C:/Users/admin/project/portfoilo-oracle/fastapi/database/password-openai-token.txt", "r").read().strip()
+            else:
+                PASSWORD = open("/app/openai-token.txt", "r").read().strip()
+            
+            print("Password: ", PASSWORD)
+            self.openai_key = PASSWORD
+            print("OpenAI Setting Complete")
+        except Exception as e:
+            print("OpenAI Setting Error: ", e)
+            print("=====================================")
+        
+        try:
+            print("=====================================")
+            print("processed texts Setting")
+            if self.current_os == 'Windows':
+                self.df = pd.read_csv('C:/Users/admin/project/portfoilo-oracle/fastapi/database/data/processed_texts_embeddings.csv')
+            else:
+                self.df = pd.read_csv('/app/data/processed_texts_embeddings.csv')
+            self.df['embeddings'] = self.df['embeddings'].apply(literal_eval).apply(np.array)
+            print("processed texts Setting Complete")
+        except Exception as e:
+            print("processed texts Setting Error: ", e)
+            print("=====================================")
+
+
+        print("=====================================")
+        print("FastAPI Server Setting")
+        # FastAPI 라우터 설정
+        self.router = APIRouter()
+        self.router.add_api_route('/openai', endpoint=self.check_server, methods=['GET'])
+        self.router.add_api_route('/openai/api/send_question', endpoint=self.send_AnswerByQuestion, methods=['POST'])
+        self.app.include_router(self.router)
+        print("FastAPI Server Setting Complete")
+        print("=====================================")
+
+    async def check_server(self):
+        return JSONResponse(status_code=200, content={"message": "Server is running"})
+
+    async def send_AnswerByQuestion(self, request: Request):
+        try:
+            question = request.query_params.get('question')
+            response = OGABQ.answer_question(self.df, question=question, openai_key=self.openai_key)
+            self.question.insert_one({"question": question, "answer": response})
+            return JSONResponse(status_code=200, content={"message": "Success", "question": question, "answer": response})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"message": "Error", "data": str(e)})
+
+
+
+fastapi_server = FASTAPI_SERVER()
+app = fastapi_server.app
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
