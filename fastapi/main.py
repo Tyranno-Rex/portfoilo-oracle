@@ -103,7 +103,7 @@ class FASTAPI_SERVER:
         # FastAPI 라우터 설정
         self.router = APIRouter()
         self.router.add_api_route('/local/', endpoint=self.check_local, methods=['POST'])
-        self.router.add_api_route('/check/password/', endpoint=self.check_password, methods=['POST'])
+        self.router.add_api_route('/openai/check/password/', endpoint=self.check_password, methods=['POST'])
         self.router.add_api_route('/openai/', endpoint=self.check_server, methods=['GET'])
         self.router.add_api_route('/openai/api/send_question/', endpoint=self.send_AnswerByQuestion, methods=['POST'])
         self.app.include_router(self.router)
