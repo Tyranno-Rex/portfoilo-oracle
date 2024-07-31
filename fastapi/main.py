@@ -22,6 +22,7 @@ class FASTAPI_SERVER:
         self.openai_key = ""
         # FastAPI 서버 설정
         self.app = FastAPI()
+        self.app.router.redirect_slashes = False
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],
