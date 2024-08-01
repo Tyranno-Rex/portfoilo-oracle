@@ -126,8 +126,11 @@ class FASTAPI_SERVER:
 
     async def send_AnswerByQuestion(self, request: Request):
         try:
-            question = request.query_params.get('question')
-            question_key = request.query_params.get('question_key')
+            data = await request.json()
+            question = data.get('question')
+            question_key = data.get('question_key')
+            # question = request.query_params.get('question')
+            # question_key = request.query_params.get('question_key')
             if (self.question_key != question_key):
                 return JSONResponse(status_code=401, content={"message": "Error", "data": "Invalid question key"})
             response = OGABQ.answer_question(self.df, question=question, openai_key=self.openai_key)
